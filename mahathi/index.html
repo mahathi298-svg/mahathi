@@ -1,0 +1,174 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Multiple Students Marks Calculator</title>
+    <style>
+        body {
+            font-family: Arial;
+            margin: 30px;
+        }
+
+        input {
+            margin: 5px;
+            padding: 7px;
+        }
+
+        table {
+            border-collapse: collapse;
+            margin-top: 20px;
+            width: 100%;
+        }
+
+        th, td {
+            border: 1px solid black;
+            padding: 10px;
+            text-align: center;
+        }
+
+        th {
+            background-color: lightblue;
+        }
+    </style>
+</head>
+
+<body>
+
+<h2>Multiple Students Marks Calculator</h2>
+
+<h3>Student Details</h3>
+
+Name:
+<input type="text" id="name" placeholder="Student Name"><br>
+
+Roll Number:
+<input type="text" id="roll" placeholder="Roll Number"><br>
+
+<h3>Subject Marks (0 - 100)</h3>
+
+<div id="marks"></div>
+
+<button onclick="addStudent()">Add Student</button>
+
+<h3>Student Results</h3>
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Roll No</th>
+            <th>English</th>
+            <th>Maths</th>
+            <th>Science</th>
+            <th>Total</th>
+            <th>Percentage</th>
+            <th>Result</th>
+        </tr>
+    </thead>
+
+    <tbody id="studentTable"></tbody>
+</table>
+
+<script>
+
+let subjects = ["English", "Maths", "Science"];
+
+subjects.forEach(subject => {
+    document.getElementById("marks").innerHTML += `
+        ${subject}:
+        <input type="number" id="${subject}"
+        min="0" max="100" placeholder="Marks">
+
+        <input type="checkbox" id="${subject}Absent">
+        Absent
+        <br><br>
+    `;
+});
+
+function addStudent() {
+
+    let name = document.getElementById("name").value.trim();
+    let roll = document.getElementById("roll").value.trim();
+
+    if (name === "" || roll === "") {
+        alert("Please enter student name and roll number");
+        return;
+    }
+
+    let total = 0;
+    let result = "Pass";
+    let marksData = [];
+    let absent = false;
+
+    for (let subject of subjects) {
+
+        let value = document.getElementById(subject).value;
+        let isAbsent = document.getElementById(subject + "Absent").checked;
+
+        if (isAbsent) {
+            marksData.push("Absent");
+            absent = true;
+            result = "Fail";
+        } 
+        else {
+            if (value === "" || Number(value) < 0 ||
+                Number(value) > 100) {
+                alert("Enter valid marks or select Absent for " + subject);
+                return;
+            }
+
+            let mark = Number(value);
+            marksData.push(mark);
+            total += mark;
+
+            if (mark < 35) {
+                result = "Fail";
+            }
+        }
+    }
+
+    let percentage = (total / 300) * 100;
+
+    if (absent) {
+        result = "Fail";
+    }
+
+    let row = `
+        <tr>
+            <td>${escapeHTML(name)}</td>
+            <td>${escapeHTML(roll)}</td>
+            <td>${marksData[0]}</td>
+            <td>${marksData[1]}</td>
+            <td>${marksData[2]}</td>
+            <td>${total}/300</td>
+            <td>${percentage.toFixed(2)}%</td>
+            <td>${result}</td>
+        </tr>
+    `;
+
+    document.getElementById("studentTable").innerHTML += row;
+
+    document.getElementById("name").value = "";
+    document.getElementById("roll").value = "";
+
+    subjects.forEach(subject => {
+        document.getElementById(subject).value = "";
+        document.getElementById(subject + "Absent").checked = false;
+    });
+}
+
+function escapeHTML(value) {
+    return value.replace(/[&<>"']/g, char => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;"
+    })[char]);
+}
+
+</script>
+
+</body>
+</html>
+5
