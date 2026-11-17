@@ -1,0 +1,293 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Multiple Students Marks Calculator</title>
+
+    <style>
+        body {
+            font-family: Arial;
+            margin: 30px;
+            background-color: #f4f4f4;
+        }
+
+        h2, h3 {
+            color: darkblue;
+        }
+
+        input {
+            margin: 5px;
+            padding: 7px;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: blue;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        table {
+            border-collapse: collapse;
+            margin-top: 20px;
+            width: 100%;
+            background-color: white;
+        }
+
+        th, td {
+            border: 1px solid black;
+            padding: 10px;
+            text-align: center;
+        }
+
+        th {
+            background-color: lightblue;
+        }
+
+        .pass {
+            color: green;
+            font-weight: bold;
+        }
+
+        .fail {
+            color: red;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+
+<h2>Multiple Students Marks Calculator</h2>
+
+<h3>Student Details</h3>
+
+Name:
+<input type="text" id="name" placeholder="Student Name">
+<br><br>
+
+Roll Number:
+<input type="text" id="roll" placeholder="Roll Number">
+<br><br>
+
+<h3>Subject Marks (0 - 100)</h3>
+
+<div id="marks"></div>
+
+<br>
+
+<button onclick="addStudent()">Add Student</button>
+
+<h3>Student Results</h3>
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Roll No</th>
+            <th>English</th>
+            <th>Mathematics</th>
+            <th>Physics</th>
+            <th>Chemistry</th>
+            <th>Computer Science</th>
+            <th>Total</th>
+            <th>Percentage</th>
+            <th>Result</th>
+        </tr>
+    </thead>
+
+    <tbody id="studentTable"></tbody>
+</table>
+
+<script>
+
+// Subject names
+let subjects = [
+    "English",
+    "Mathematics",
+    "Physics",
+    "Chemistry",
+    "ComputerScience"
+];
+
+// Create subject input fields
+subjects.forEach(subject => {
+
+    let displayName = subject === "ComputerScience"
+        ? "Computer Science" : subject;
+
+    document.getElementById("marks").innerHTML += `
+        ${displayName}:
+
+        <input type="number"
+        id="${subject}"
+        min="0"
+        max="100"
+        placeholder="Marks">
+
+        <input type="checkbox"
+        id="${subject}Absent">
+
+        Absent
+
+        <br><br>
+    `;
+});
+
+
+// Add student function
+function addStudent() {
+
+    let name = document.getElementById("name").value.trim();
+
+    let roll = document.getElementById("roll").value.trim();
+
+
+    // Name validation
+    let namePattern = /^[A-Za-z ]+$/;
+
+    if (name === "") {
+        alert("Please enter student name");
+        return;
+    }
+
+    if (!namePattern.test(name)) {
+        alert("Name must contain only alphabets and spaces!");
+        return;
+    }
+
+
+    // Roll number validation
+    if (roll === "") {
+        alert("Please enter roll number");
+        return;
+    }
+
+
+    let total = 0;
+    let result = "Pass";
+    let marksData = [];
+    let absent = false;
+
+
+    // Calculate marks
+    for (let subject of subjects) {
+
+        let value = document.getElementById(subject).value;
+
+        let isAbsent = document.getElementById(
+            subject + "Absent"
+        ).checked;
+
+
+        if (isAbsent) {
+
+            marksData.push("Absent");
+
+            absent = true;
+
+            result = "Fail";
+
+        }
+
+        else {
+
+            if (
+                value === "" ||
+                Number(value) < 0 ||
+                Number(value) > 100
+            ) {
+
+                alert(
+                    "Enter valid marks or select Absent for " + subject
+                );
+
+                return;
+            }
+
+            let mark = Number(value);
+
+            marksData.push(mark);
+
+            total += mark;
+
+
+            // Minimum pass mark is 35
+            if (mark < 35) {
+                result = "Fail";
+            }
+        }
+    }
+
+
+    // Calculate percentage
+    let percentage = (total / 500) * 100;
+
+
+    // Absent means fail
+    if (absent) {
+        result = "Fail";
+    }
+
+
+    // Display student details
+    let row = `
+        <tr>
+            <td>${escapeHTML(name)}</td>
+            <td>${escapeHTML(roll)}</td>
+            <td>${marksData[0]}</td>
+            <td>${marksData[1]}</td>
+            <td>${marksData[2]}</td>
+            <td>${marksData[3]}</td>
+            <td>${marksData[4]}</td>
+            <td>${total}/500</td>
+            <td>${percentage.toFixed(2)}%</td>
+            <td class="${result === 'Pass' ? 'pass' : 'fail'}">
+                ${result}
+            </td>
+        </tr>
+    `;
+
+
+    document.getElementById("studentTable").innerHTML += row;
+
+
+    // Clear input fields
+    document.getElementById("name").value = "";
+
+    document.getElementById("roll").value = "";
+
+
+    subjects.forEach(subject => {
+
+        document.getElementById(subject).value = "";
+
+        document.getElementById(
+            subject + "Absent"
+        ).checked = false;
+
+    });
+
+}
+
+
+// Prevent HTML injection
+function escapeHTML(value) {
+
+    return value.replace(/[&<>"']/g, char => ({
+
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;"
+
+    })[char]);
+
+}
+
+</script>
+
+</body>
+</html>
